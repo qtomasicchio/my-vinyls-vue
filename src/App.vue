@@ -12,7 +12,8 @@ const pageTitle = computed(() => {
   <header>
     <h1>{{ pageTitle }}</h1>
   </header>
-  <nav>
+  <!-- Temporaly hide this -->
+  <nav v-if="false">
     <a href="#collection" @click="page='collection'">My Collection</a> |
     <a href="#wishlist" @click="page = 'wishlist'">My Wishlist</a>
   </nav>

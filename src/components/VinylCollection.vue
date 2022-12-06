@@ -1,24 +1,44 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, reactive, computed } from 'vue'
+import FilterBar from './FilterBar.vue'
 import VinylCard from './VinylCard.vue'
 import vinylList from '../services/vinyl-list.js'
 import { compare, filter } from '../services/vinyl-utils.js'
 
 const search = ref('')
 const sortBy = ref('artist')
+const filteredBar = reactive([]);
 
 const vinyls = computed(() => {
-  vinylList.sort(compare(sortBy.value))
+  let updatedVinylList = JSON.parse(JSON.stringify(vinylList));
+  updatedVinylList.sort(compare(sortBy.value))
+
+
+  if (filteredBar && filteredBar.length > 0) {
+    updatedVinylList = updatedVinylList.filter(({ genres, styles }) => {
+      return genres.some(genre => filteredBar.includes(genre)) ||
+        styles.some(style => filteredBar.includes(style))
+    });
+  }
 
   if (search.value.trim()) {
-    return vinylList.filter(filter())
+    return updatedVinylList.filter(filter())
   }
-  return vinylList
+
+  return updatedVinylList
 })
+
+function updateFilterBar(filteredChips) {
+  filteredBar.splice(0, filteredBar.length)
+  filteredBar.push(...filteredChips);
+}
 </script>
 
 <template>
   <form @submit.prevent>
+
+    <FilterBar @update:filter-bar="updateFilterBar"></FilterBar>
+
     <label for="search">Search: </label>
     <input id="search" type="text" v-model="search">
     <label for="order"> Sort by: </label>
@@ -33,7 +53,7 @@ const vinyls = computed(() => {
 
 <style scoped>
 form {
-  margin-left: 55%;
+  margin-top: 1%;
   margin-bottom: 1%;
 }
 </style>
